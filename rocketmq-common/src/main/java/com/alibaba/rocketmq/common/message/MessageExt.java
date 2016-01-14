@@ -15,13 +15,16 @@
  */
 package com.alibaba.rocketmq.common.message;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-
 import com.alibaba.rocketmq.common.TopicFilterType;
 import com.alibaba.rocketmq.common.sysflag.MessageSysFlag;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 /**
  * 消息扩展属性，在服务器上产生此对象
@@ -33,39 +36,37 @@ public class MessageExt extends Message {
     private static final long serialVersionUID = 5720810158625748049L;
 
     // 队列ID <PUT>
-    private int queueId;
+    private int               queueId;
     // 存储记录大小
-    private int storeSize;
+    private int               storeSize;
     // 队列偏移量
-    private long queueOffset;
+    private long              queueOffset;
     // 消息标志位 <PUT>
-    private int sysFlag;
+    private int               sysFlag;
     // 消息在客户端创建时间戳 <PUT>
-    private long bornTimestamp;
+    private long              bornTimestamp;
     // 消息来自哪里 <PUT>
-    private SocketAddress bornHost;
+    private SocketAddress     bornHost;
     // 消息在服务器存储时间戳
-    private long storeTimestamp;
+    private long              storeTimestamp;
     // 消息存储在哪个服务器 <PUT>
-    private SocketAddress storeHost;
+    private SocketAddress     storeHost;
     // 消息ID
-    private String msgId;
+    private String            msgId;
     // 消息对应的Commit Log Offset
-    private long commitLogOffset;
+    private long              commitLogOffset;
     // 消息体CRC
-    private int bodyCRC;
+    private int               bodyCRC;
     // 当前消息被某个订阅组重新消费了几次（订阅组之间独立计数）
-    private int reconsumeTimes;
+    private int               reconsumeTimes;
 
-    private long preparedTransactionOffset;
-
+    private long              preparedTransactionOffset;
 
     public MessageExt() {
     }
 
-
     public MessageExt(int queueId, long bornTimestamp, SocketAddress bornHost, long storeTimestamp,
-            SocketAddress storeHost, String msgId) {
+                      SocketAddress storeHost, String msgId) {
         this.queueId = queueId;
         this.bornTimestamp = bornTimestamp;
         this.bornHost = bornHost;
@@ -73,7 +74,6 @@ public class MessageExt extends Message {
         this.storeHost = storeHost;
         this.msgId = msgId;
     }
-
 
     /**
      * SocketAddress ----> ByteBuffer 转化成8个字节
@@ -87,14 +87,12 @@ public class MessageExt extends Message {
         return byteBuffer;
     }
 
-
     /**
      * 获取bornHost字节形式，8个字节 HOST + PORT
      */
     public ByteBuffer getBornHostBytes() {
         return SocketAddress2ByteBuffer(this.bornHost);
     }
-
 
     /**
      * 获取storehost字节形式，8个字节 HOST + PORT
@@ -103,31 +101,72 @@ public class MessageExt extends Message {
         return SocketAddress2ByteBuffer(this.storeHost);
     }
 
+    /**
+     * 获取String类型消息体
+     * 
+     * @return StringBody
+     */
+    public String getStringBody() {
+        return new String(body, Charset.forName("UTF-8"));
+    }
+
+    /**
+     * 获取Object类型消息体
+     * @return ObjectBody
+     */
+    public Object getObjectBody() {
+        return decodeObject(body);
+    }
+
+    /**
+     * 转换成对象
+     * 
+     * @param body 消息体
+     * @return Object
+     */
+    private Object decodeObject(byte[] body) {
+        Object obj = null;
+        ByteArrayInputStream bais = null;
+        ObjectInputStream ois = null;
+        try {
+            bais = new ByteArrayInputStream(body);
+            ois = new ObjectInputStream(bais);
+            obj = ois.readObject();
+        } catch (IOException ex) {
+            return null;
+        } catch (ClassNotFoundException ex) {
+            return null;
+        } finally {
+            if (ois != null) {
+                try {
+                    ois.close();
+                    bais.close();
+                } catch (IOException ex) {
+                }
+            }
+        }
+        return obj;
+    }
 
     public int getQueueId() {
         return queueId;
     }
 
-
     public void setQueueId(int queueId) {
         this.queueId = queueId;
     }
-
 
     public long getBornTimestamp() {
         return bornTimestamp;
     }
 
-
     public void setBornTimestamp(long bornTimestamp) {
         this.bornTimestamp = bornTimestamp;
     }
 
-
     public SocketAddress getBornHost() {
         return bornHost;
     }
-
 
     public String getBornHostString() {
         if (this.bornHost != null) {
@@ -138,7 +177,6 @@ public class MessageExt extends Message {
         return null;
     }
 
-
     public String getBornHostNameString() {
         if (this.bornHost != null) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) this.bornHost;
@@ -148,91 +186,73 @@ public class MessageExt extends Message {
         return null;
     }
 
-
     public void setBornHost(SocketAddress bornHost) {
         this.bornHost = bornHost;
     }
-
 
     public long getStoreTimestamp() {
         return storeTimestamp;
     }
 
-
     public void setStoreTimestamp(long storeTimestamp) {
         this.storeTimestamp = storeTimestamp;
     }
-
 
     public SocketAddress getStoreHost() {
         return storeHost;
     }
 
-
     public void setStoreHost(SocketAddress storeHost) {
         this.storeHost = storeHost;
     }
-
 
     public String getMsgId() {
         return msgId;
     }
 
-
     public void setMsgId(String msgId) {
         this.msgId = msgId;
     }
-
 
     public int getSysFlag() {
         return sysFlag;
     }
 
-
     public void setSysFlag(int sysFlag) {
         this.sysFlag = sysFlag;
     }
-
 
     public int getBodyCRC() {
         return bodyCRC;
     }
 
-
     public void setBodyCRC(int bodyCRC) {
         this.bodyCRC = bodyCRC;
     }
-
 
     public long getQueueOffset() {
         return queueOffset;
     }
 
-
     public void setQueueOffset(long queueOffset) {
         this.queueOffset = queueOffset;
     }
-
 
     public long getCommitLogOffset() {
         return commitLogOffset;
     }
 
-
     public void setCommitLogOffset(long physicOffset) {
         this.commitLogOffset = physicOffset;
     }
-
 
     public int getStoreSize() {
         return storeSize;
     }
 
-
     public void setStoreSize(int storeSize) {
         this.storeSize = storeSize;
     }
-
 
     public static TopicFilterType parseTopicFilterType(final int sysFlag) {
         if ((sysFlag & MessageSysFlag.MultiTagsFlag) == MessageSysFlag.MultiTagsFlag) {
@@ -242,34 +262,30 @@ public class MessageExt extends Message {
         return TopicFilterType.SINGLE_TAG;
     }
 
-
     public int getReconsumeTimes() {
         return reconsumeTimes;
     }
-
 
     public void setReconsumeTimes(int reconsumeTimes) {
         this.reconsumeTimes = reconsumeTimes;
     }
 
-
     public long getPreparedTransactionOffset() {
         return preparedTransactionOffset;
     }
-
 
     public void setPreparedTransactionOffset(long preparedTransactionOffset) {
         this.preparedTransactionOffset = preparedTransactionOffset;
     }
 
-
     @Override
     public String toString() {
-        return "MessageExt [queueId=" + queueId + ", storeSize=" + storeSize + ", queueOffset=" + queueOffset
-                + ", sysFlag=" + sysFlag + ", bornTimestamp=" + bornTimestamp + ", bornHost=" + bornHost
-                + ", storeTimestamp=" + storeTimestamp + ", storeHost=" + storeHost + ", msgId=" + msgId
-                + ", commitLogOffset=" + commitLogOffset + ", bodyCRC=" + bodyCRC + ", reconsumeTimes="
-                + reconsumeTimes + ", preparedTransactionOffset=" + preparedTransactionOffset
-                + ", toString()=" + super.toString() + "]";
+        return "MessageExt [queueId=" + queueId + ", storeSize=" + storeSize + ", queueOffset="
+               + queueOffset + ", sysFlag=" + sysFlag + ", bornTimestamp=" + bornTimestamp
+               + ", bornHost=" + bornHost + ", storeTimestamp=" + storeTimestamp + ", storeHost="
+               + storeHost + ", msgId=" + msgId + ", commitLogOffset=" + commitLogOffset
+               + ", bodyCRC=" + bodyCRC + ", reconsumeTimes=" + reconsumeTimes
+               + ", preparedTransactionOffset=" + preparedTransactionOffset + ", toString()="
+               + super.toString() + "]";
     }
 }

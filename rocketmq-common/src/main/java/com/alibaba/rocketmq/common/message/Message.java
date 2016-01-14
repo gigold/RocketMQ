@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  * 消息，Producer与Consumer使用
- * 
+ *
  * @author shijia.wxr<vintage.wang@gmail.com>
  * @since 2013-7-18
  */
@@ -33,19 +33,19 @@ public class Message implements Serializable {
     /**
      * 消息主题
      */
-    private String topic;
+    protected String topic;
     /**
      * 消息标志，系统不做干预，完全由应用决定如何使用
      */
-    private int flag;
+    protected int flag;
     /**
      * 消息属性，都是系统属性，禁止应用设置
      */
-    private Map<String, String> properties;
+    protected Map<String, String> properties;
     /**
      * 消息体
      */
-    private byte[] body;
+    protected byte[] body;
 
 
     public Message() {

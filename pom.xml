@@ -187,29 +187,26 @@
             </plugin>
 
 
+            <!--<plugin>-->
+                <!--<artifactId>maven-assembly-plugin</artifactId>-->
+                <!--<version>2.5.3</version>-->
+                <!--<configuration>-->
+                    <!--<finalName>alibaba-rocketmq-${project.version}</finalName>-->
+                    <!--<descriptors>-->
+                        <!--<descriptor>release.xml</descriptor>-->
+                    <!--</descriptors>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.3</version>
                 <configuration>
-                    <finalName>alibaba-rocketmq-${project.version}</finalName>
+                    <finalName>alibaba-rocketmq-client-java-${project.version}</finalName>
                     <descriptors>
-                        <descriptor>release.xml</descriptor>
+                        <descriptor>release-client.xml</descriptor>
                     </descriptors>
                 </configuration>
             </plugin>
-
-            <!--
-                        <plugin>
-                            <artifactId>maven-assembly-plugin</artifactId>
-                            <configuration>
-                                <finalName>alibaba-rocketmq-client-java-${project.version}</finalName>
-                                <descriptors>
-                                    <descriptor>release-client.xml</descriptor>
-                                </descriptors>
-                            </configuration>
-                        </plugin>
-            -->
-
 
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -361,12 +358,12 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.0.13</version>
+                <version>1.1.1</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.0.13</version>
+                <version>1.1.1</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -405,4 +402,16 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>Gigold Nexus Repository</name>
+            <url>http://123.57.152.75:8021/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Gigold Nexus Repository</name>
+            <url>http://123.57.152.75:8021/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
