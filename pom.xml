@@ -96,6 +96,25 @@
         <file_encoding>UTF-8</file_encoding>
     </properties>
 
+    <!-- 设定主仓库，按设定顺序进行查找。 -->
+    <repositories>
+        <!-- 如有Nexus私服, 取消注释并指向正确的服务器地址. -->
+        <repository>
+            <id>releases</id>
+            <name>Team Nexus Repository</name>
+            <url>http://123.57.152.75:8021/nexus/content/groups/public</url>
+        </repository>
+    </repositories>
+
+    <!-- 设定插件仓库 -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>oschina-repos</id>
+            <name>Oschina Releases</name>
+            <url>http://maven.oschina.net/content/groups/public</url>
+        </pluginRepository>
+    </pluginRepositories>
+    
     <build>
         <plugins>
             <plugin>
